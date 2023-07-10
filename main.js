@@ -72,10 +72,10 @@ for(let i = -4; i < 0; i++){
 }
 
 
-const controls = new OrbitControls(camera, renderer.domElement);
+//const controls = new OrbitControls(camera, renderer.domElement);
 camera.position.set( 0, 0, 18);
 
-controls.update();
+//controls.update();
 
 // Mouse Variables 
 const raycaster = new THREE.Raycaster();
@@ -111,7 +111,7 @@ function mouseIntersect(){
 	const intersects = raycaster.intersectObjects( scene.children, false );
 
 	if (intersects.length > 0){
-        if (INTERSECTED != intersects[0].object){
+        if (INTERSECTED != intersects[0].object && scene.children[2] != intersects[0].object){
             if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
 
             INTERSECTED = intersects[0].object;
@@ -132,8 +132,8 @@ function animate(){
     // group.rotation.y += 0.01
     // sphere.rotation.x += 0.01;
     // sphere.rotation.y += 0.01;
-    controls.autoRotate = false;
-    controls.update();
+    //controls.autoRotate = false;
+    //controls.update();
     renderer.render(scene, camera);
 }
 
