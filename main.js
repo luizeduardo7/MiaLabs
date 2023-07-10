@@ -100,12 +100,12 @@ function onMouseMove(event){
     group.lookAt(pointOfIntersection);
 }
 
-function clickMouse(obj){
+function mouseClick(obj){
     if (scene.children[2] != INTERSECTED) scene.remove(INTERSECTED);
 }
 
 // Intersection with mouse pointer
-function MouseIntersect(){
+function mouseIntersect(){
 	raycaster.setFromCamera(pointer, camera);
 
 	const intersects = raycaster.intersectObjects( scene.children, false );
@@ -125,9 +125,9 @@ function MouseIntersect(){
 function animate(){
     requestAnimationFrame(animate);
     window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('click', clickMouse);
+    window.addEventListener('click', mouseClick);
     window.addEventListener("mousemove", onMouseMove, false);
-    window.requestAnimationFrame(MouseIntersect)
+    window.requestAnimationFrame(mouseIntersect)
     //cube.rotation.y += 0.01;
     // group.rotation.y += 0.01
     // sphere.rotation.x += 0.01;
