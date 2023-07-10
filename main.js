@@ -47,11 +47,21 @@ scene.add(group)
 base.position.set(1,-1,0)
 group.position.set(-2, -1, 15)
 
+// Plane Floor
+const map = new THREE.TextureLoader().load( 'public/sprite.jpg' );
+const planeGeometry = new THREE.PlaneGeometry(25, 25, 40, 40);
+const planeMaterial = new THREE.MeshStandardMaterial( {map: map} )
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = 4.8
+plane.position.y = -5
+plane.receiveShadow = true;
+scene.add( plane );
+
 // Create Spheres
 for(let i = -4; i < 0; i++){
     for(let j = -4; j < 6; j++){
         const geometry2 = new THREE.SphereGeometry(0.6);
-        const material2 = new THREE.MeshStandardMaterial({color: 0x0000ff});
+        const material2 = new THREE.MeshPhongMaterial({color: 0x0000ff});
         const sphere = new THREE.Mesh(geometry2, material2);
         sphere.position.set(j*2, i*2, randFloat(0, 3));
         sphere.position.y += 8
@@ -61,14 +71,6 @@ for(let i = -4; i < 0; i++){
     }
 }
 
-// Plane Floor
-const planeGeometry = new THREE.PlaneGeometry(25, 25, 40, 40);
-const planeMaterial = new THREE.MeshStandardMaterial( {color: 0x00ff00} )
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = 4.8
-plane.position.y = -5
-plane.receiveShadow = true;
-scene.add( plane );
 
 const controls = new OrbitControls(camera, renderer.domElement);
 camera.position.set( 0, 0, 18);
@@ -98,6 +100,10 @@ function onMouseMove(event){
     group.lookAt(pointOfIntersection);
 }
 
+function clickMouse(obj){
+    if (scene.children[2] != INTERSECTED) scene.remove(INTERSECTED);
+}
+
 // Intersection with mouse pointer
 function MouseIntersect(){
 	raycaster.setFromCamera(pointer, camera);
@@ -119,9 +125,10 @@ function MouseIntersect(){
 function animate(){
     requestAnimationFrame(animate);
     window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('click', clickMouse);
     window.addEventListener("mousemove", onMouseMove, false);
     window.requestAnimationFrame(MouseIntersect)
-    cube.rotation.y += 0.01;
+    //cube.rotation.y += 0.01;
     // group.rotation.y += 0.01
     // sphere.rotation.x += 0.01;
     // sphere.rotation.y += 0.01;
