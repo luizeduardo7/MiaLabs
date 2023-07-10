@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { randFloat, randInt } from 'three/src/math/MathUtils';
@@ -49,13 +50,21 @@ group.position.set(-2, -1, 15)
 
 // Plane Floor
 const map = new THREE.TextureLoader().load( 'public/sprite.jpg' );
-const planeGeometry = new THREE.PlaneGeometry(25, 25, 40, 40);
+const planeGeometry = new THREE.PlaneGeometry(50, 50, 40, 40);
 const planeMaterial = new THREE.MeshStandardMaterial( {map: map} )
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = 4.8
 plane.position.y = -5
 plane.receiveShadow = true;
 scene.add( plane );
+
+// back
+const planeGeometry2 = new THREE.PlaneGeometry(50, 50, 40, 40);
+const planeMaterial2 = new THREE.MeshStandardMaterial( {color: 0x000000} )
+const back = new THREE.Mesh(planeGeometry2, planeMaterial2);
+back.receiveShadow = true;
+back.position.z = -15
+scene.add( back );
 
 // Create Spheres
 for(let i = -4; i < 0; i++){
@@ -71,11 +80,20 @@ for(let i = -4; i < 0; i++){
     }
 }
 
-
-//const controls = new OrbitControls(camera, renderer.domElement);
 camera.position.set( 0, 0, 18);
 
-//controls.update();
+
+// function onDocumentKeyDown(event) {
+//     var keyCode = event.which;
+//     // up
+//     let controls;
+//     if (keyCode == '38') {
+//         controls = new OrbitControls(camera, renderer.domElement);
+//     }else if(keyCode == 40){
+//         delete controls.property;
+//     }
+//     renderer.render(scene, camera);
+// };
 
 // Mouse Variables 
 const raycaster = new THREE.Raycaster();
@@ -86,7 +104,6 @@ function onPointerMove(event){
 	pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
 	pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
-
 
 const plane2 = new THREE.Plane(new THREE.Vector3(0, 0, 2), 2);
 const mouse = new THREE.Vector2();
@@ -100,8 +117,23 @@ function onMouseMove(event){
     group.lookAt(pointOfIntersection);
 }
 
-function mouseClick(obj){
-    if (scene.children[2] != INTERSECTED) scene.remove(INTERSECTED);
+// Shoot
+function mouseClick(){
+    const tweenGo = new TWEEN.Tween({xRotation: group.rotation.x})
+        .to({xRotation: group.rotation.x += 0.3}, 100)
+        .onUpdate((coords) => {
+            group.rotation.x = coords.xRotation;
+        })
+    tweenGo.start();
+
+    const tweenBack = new TWEEN.Tween({xRotation: group.rotation.x})
+        .to({xRotation: group.rotation.x -= 0.3}, 100)
+        .onUpdate((coords) => {
+            group.rotation.x = coords.xRotation;
+        })
+    tweenBack.start();
+    
+    if (scene.children[3] != INTERSECTED) scene.remove(INTERSECTED);
 }
 
 // Intersection with mouse pointer
@@ -113,10 +145,10 @@ function mouseIntersect(){
 	if (intersects.length > 0){
         if (INTERSECTED != intersects[0].object && scene.children[2] != intersects[0].object){
             if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
-
+            
             INTERSECTED = intersects[0].object;
             INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-            INTERSECTED.material.emissive.setHex(0xff0000);
+            if (scene.children[3] != INTERSECTED) INTERSECTED.material.emissive.setHex(0xff0000);
         }
     }
 	renderer.render(scene, camera);
@@ -124,12 +156,14 @@ function mouseIntersect(){
 
 function animate(){
     requestAnimationFrame(animate);
+    //window.addEventListener("keydown", onDocumentKeyDown, false);
+    TWEEN.update();
     window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('click', mouseClick);
+    window.addEventListener('click', mouseClick, false);
     window.addEventListener("mousemove", onMouseMove, false);
     window.requestAnimationFrame(mouseIntersect)
     //cube.rotation.y += 0.01;
-    // group.rotation.y += 0.01
+    //group.rotation.x += 0.01
     // sphere.rotation.x += 0.01;
     // sphere.rotation.y += 0.01;
     //controls.autoRotate = false;
