@@ -3,6 +3,8 @@ import * as TWEEN from '@tweenjs/tween.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { randFloat, randInt } from 'three/src/math/MathUtils';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 
 // ThreeJS build pattern
@@ -27,7 +29,7 @@ const loader = new GLTFLoader();
 // Gun
 let base = new THREE.Object3D();
 scene.add(base);
-loader.load( '/public/Glock18.gltf', 
+loader.load( '/Glock18.gltf', 
     function ( gltf ){
         gltf.scene.scale.setScalar(1)
 	    base.add( gltf.scene );
@@ -49,7 +51,7 @@ base.position.set(1,-1,0)
 group.position.set(-2, -1, 15)
 
 // Plane Floor
-const map = new THREE.TextureLoader().load( 'public/sprite.jpg' );
+const map = new THREE.TextureLoader().load( '/sprite.jpg' );
 const planeGeometry = new THREE.PlaneGeometry(50, 50, 40, 40);
 const planeMaterial = new THREE.MeshStandardMaterial( {map: map} )
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -66,6 +68,48 @@ back.receiveShadow = true;
 back.position.z = -15
 scene.add( back );
 
+// score
+const scoreGroup = new THREE.Group();
+let scoreManager = { 
+    score: 0,
+    font: undefined,
+    scoreMesh: null,
+    fontUri: 'node_modules/three/examples/fonts/gentilis_regular.typeface.json',
+    createScoreMeshInScene: (scoreValue, scene) => {
+        new FontLoader().load( scoreManager.fontUri, (response) => scoreManager.font = response )
+        const textGeom = new TextGeometry( `score: ${scoreValue}`, {
+            font: scoreManager.font,
+            size: 2,
+            height: 3,
+            curveSegments: 12,
+        })
+
+        textGeom.computeBoundingBox()
+        const centerOffset = - 0.5 * ( textGeom.boundingBox.max.x - textGeom.boundingBox.min.x )
+
+        scoreManager.scoreMesh = new THREE.Mesh( textGeom, new THREE.MeshNormalMaterial())
+
+        scoreManager.scoreMesh.position.x = centerOffset - 20
+        scoreManager.scoreMesh.position.y = 22
+        scoreManager.scoreMesh.position.z = -18
+        
+        scoreManager.scoreMesh.rotation.x = 0
+        scoreManager.scoreMesh.rotation.y = Math.PI * 2
+        
+        scene.add(scoreManager.scoreMesh)
+        
+    },
+    updateScoreMeshInScene: (scene) => { 
+        if (scoreManager.scoreMesh !== null) {
+            scene.remove(scoreManager.scoreMesh)
+            scoreManager.createScoreMeshInScene(scoreManager.score, scene)
+        }
+    },
+    countPoint: () => scoreManager.score += 1
+};
+
+scoreManager.createScoreMeshInScene(0, scoreGroup)
+scene.add(scoreGroup)
 // Create Spheres
 for(let i = -4; i < 0; i++){
     for(let j = -4; j < 6; j++){
@@ -133,7 +177,11 @@ function mouseClick(){
         })
     tweenBack.start();
     
-    if (scene.children[3] != INTERSECTED) scene.remove(INTERSECTED);
+    if (scene.children[3] != INTERSECTED) {
+        scoreManager.countPoint()
+        scoreManager.updateScoreMeshInScene(scene)
+        scene.remove(INTERSECTED);
+    }
 }
 
 // Intersection with mouse pointer
