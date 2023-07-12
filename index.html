@@ -2,12 +2,23 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<style>
+		<title>MIALabs</title>
+		<!-- <style>
 			body { margin: 0; }
-		</style>
+		</style> -->
+		<meta charset="utf-8">
+		<link type="text/css" rel="stylesheet" href="main.css">
 	</head>
 	<body>
-		<script type="module" src="/main.js"></script>
+		<audio id="song" preload="auto" >
+			<source src="public/shoot.ogg" type="audio/ogg">
+		</audio>
+		<div hidden ="gameOver">
+			<button hidden id="restartButton">Jogar Novamente</button>
+		</div>
+		<div id="overlay">
+			<button id="startButton">Play</button>
+		</div>
+		<script type="module" async src="/main.js"></script>
 	</body>
 </html>
